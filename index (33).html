@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>סקר יום הבריאות — הולמס פלייס</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Heebo',sans-serif;min-height:100vh;overflow-x:hidden;background:#0a0a0a;}
+
+/* ── BG SLIDESHOW ── */
+.bg-wrap{position:fixed;inset:0;z-index:0;}
+.bg-slide{position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease-in-out;background-size:cover;background-position:center;}
+.bg-slide.active{opacity:1;}
+.bg-overlay{position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,0.68),rgba(0,20,40,0.6),rgba(0,0,0,0.72));z-index:1;}
+
+/* ── LAYOUT ── */
+.page{position:relative;z-index:2;min-height:100vh;padding:28px 16px 56px;display:flex;flex-direction:column;align-items:center;gap:20px;}
+
+.logo-bar{text-align:center;}
+.brand{font-size:12px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.4);text-transform:uppercase;}
+.brand span{color:#14b8a6;}
+
+/* ── GLASS MIXIN ── */
+.glass{
+  background:rgba(255,255,255,0.10);
+  backdrop-filter:blur(22px) saturate(160%);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.17);
+  box-shadow:0 8px 48px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+/* ── SURVEY CARD ── */
+.survey-card{width:100%;max-width:980px;border-radius:24px;padding:32px 32px 28px;}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;}
+
+/* left: form */
+.form-side{}
+.card-header{margin-bottom:22px;}
+.event-pill{display:inline-block;background:rgba(20,184,166,0.25);border:1px solid rgba(20,184,166,0.6);color:#5eead4;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:30px;margin-bottom:10px;}
+.card-header h1{font-size:26px;font-weight:900;color:#fff;letter-spacing:-.8px;margin-bottom:4px;}
+.card-header p{font-size:13px;color:rgba(255,255,255,0.45);font-weight:300;}
+
+.sec-label{font-size:11px;font-weight:700;letter-spacing:1.8px;color:#14b8a6;text-transform:uppercase;margin-bottom:12px;}
+.divider{height:1px;background:rgba(255,255,255,0.11);margin:18px 0;}
+
+.name-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+label.fl{font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);}
+label.fl .req{color:#2dd4bf;margin-right:2px;}
+
+input[type="text"]{padding:11px 13px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.17);border-radius:10px;font-family:'Heebo',sans-serif;font-size:14px;color:#fff;outline:none;direction:rtl;transition:border-color .2s,background .2s,box-shadow .2s;}
+input[type="text"]::placeholder{color:rgba(255,255,255,0.25);}
+input[type="text"]:focus{border-color:rgba(20,184,166,0.7);background:rgba(255,255,255,0.12);box-shadow:0 0 0 3px rgba(20,184,166,0.16);}
+input[type="text"].invalid{border-color:rgba(239,68,68,0.75);}
+.err{font-size:11px;color:#f87171;display:none;margin-top:-2px;}
+
+.transport-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px;}
+.t-opt{position:relative;}
+.t-opt input[type="radio"]{position:absolute;opacity:0;width:0;height:0;}
+.t-opt label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:14px 6px;border:1px solid rgba(255,255,255,0.15);border-radius:13px;cursor:pointer;background:rgba(255,255,255,0.06);font-size:11.5px;font-weight:600;color:rgba(255,255,255,0.55);text-align:center;min-height:84px;line-height:1.3;transition:all .18s;}
+.t-icon{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .18s;}
+.t-opt input:checked+label{border-color:rgba(20,184,166,0.8);background:rgba(20,184,166,0.17);color:#fff;box-shadow:0 0 0 3px rgba(20,184,166,0.18);}
+.t-opt input:checked+label .t-icon{background:#0f766e;}
+.t-opt label:hover{border-color:rgba(20,184,166,0.5);background:rgba(20,184,166,0.09);color:#fff;}
+.terr{font-size:11px;color:#f87171;display:none;margin-top:5px;}
+
+.submit-btn{width:100%;margin-top:20px;padding:14px;background:linear-gradient(135deg,#0f766e,#14b8a6);color:#fff;border:none;border-radius:12px;font-family:'Heebo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;box-shadow:0 4px 20px rgba(20,184,166,0.3);}
+.submit-btn:hover{opacity:.9;}
+.submit-btn:active{transform:scale(.99);}
+
+.success-screen{display:none;text-align:center;padding:12px 0;}
+.success-circle{width:62px;height:62px;border-radius:50%;background:rgba(20,184,166,0.18);border:1.5px solid rgba(20,184,166,0.65);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 14px;}
+.success-screen h2{font-size:20px;font-weight:800;color:#fff;margin-bottom:5px;}
+.success-screen p{font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:18px;}
+.summary-chip{display:inline-block;background:rgba(20,184,166,0.18);border:1px solid rgba(20,184,166,0.5);color:#5eead4;font-size:13px;font-weight:700;padding:9px 18px;border-radius:30px;margin-bottom:20px;}
+.add-btn{padding:10px 24px;border:1px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.07);color:#fff;border-radius:10px;font-family:'Heebo',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;}
+.add-btn:hover{background:rgba(255,255,255,0.13);}
+
+/* col separator */
+.col-sep{width:1px;background:rgba(255,255,255,0.1);align-self:stretch;}
+
+/* ── RIGHT: DASHBOARD ── */
+.dash-side{}
+
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.kpi-card{
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.13);
+  border-radius:14px;
+  padding:14px 12px 12px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative;
+}
+.kpi-card:hover{background:rgba(20,184,166,0.15);border-color:rgba(20,184,166,0.5);}
+.kpi-card.selected{background:rgba(20,184,166,0.2);border-color:rgba(20,184,166,0.8);box-shadow:0 0 0 3px rgba(20,184,166,0.2);}
+.kpi-label{font-size:10px;font-weight:700;letter-spacing:1.3px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:6px;}
+.kpi-num{font-size:32px;font-weight:900;color:#fff;line-height:1;margin-bottom:2px;}
+.kpi-num.teal{color:#2dd4bf;}
+.kpi-num.blue{color:#93c5fd;}
+.kpi-num.amber{color:#fcd34d;}
+.kpi-sub{font-size:10.5px;color:rgba(255,255,255,0.35);font-weight:300;}
+.kpi-icon{font-size:20px;margin-bottom:5px;}
+
+/* bars */
+.bars-box{margin-bottom:14px;}
+.bar-row{margin-bottom:12px;cursor:pointer;}
+.bar-row:last-child{margin-bottom:0;}
+.bar-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.bar-name{font-size:13px;font-weight:600;color:#fff;}
+.bar-cnt{font-size:12px;font-weight:700;}
+.bar-cnt.police{color:#93c5fd;}
+.bar-cnt.self{color:#5eead4;}
+.bar-cnt.shuttle{color:#fcd34d;}
+.bar-track{height:9px;background:rgba(255,255,255,0.07);border-radius:30px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:30px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+.bar-fill.police{background:linear-gradient(90deg,#3b82f6,#60a5fa);}
+.bar-fill.self{background:linear-gradient(90deg,#0f766e,#2dd4bf);}
+.bar-fill.shuttle{background:linear-gradient(90deg,#b45309,#fbbf24);}
+.bar-pct{font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;}
+.bar-row.selected .bar-track{box-shadow:0 0 0 2px rgba(20,184,166,0.5);}
+
+/* ── DRAWER / LIST ── */
+.drawer{
+  overflow:hidden;
+  max-height:0;
+  transition:max-height .4s cubic-bezier(.4,0,.2,1), opacity .3s;
+  opacity:0;
+}
+.drawer.open{max-height:600px;opacity:1;}
+
+.drawer-inner{
+  border-top:1px solid rgba(255,255,255,0.1);
+  padding-top:14px;
+  margin-top:2px;
+}
+
+.drawer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.drawer-title{font-size:12px;font-weight:700;letter-spacing:1.2px;color:#14b8a6;text-transform:uppercase;}
+.drawer-close{background:none;border:none;color:rgba(255,255,255,0.3);font-size:18px;cursor:pointer;font-family:'Heebo',sans-serif;line-height:1;transition:color .15s;}
+.drawer-close:hover{color:#f87171;}
+
+.list-scroll{max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;}
+.list-scroll::-webkit-scrollbar{width:3px;}
+.list-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.12);border-radius:2px;}
+
+.list-item{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:10px;
+  padding:9px 12px;
+  transition:background .15s;
+}
+.list-item:hover{background:rgba(255,255,255,0.1);}
+
+.li-name{flex:1;font-size:13px;font-weight:600;color:#fff;}
+.li-name input{background:rgba(255,255,255,0.08);border:1px solid rgba(20,184,166,0.6);border-radius:7px;padding:4px 8px;color:#fff;font-family:'Heebo',sans-serif;font-size:13px;font-weight:600;outline:none;width:100%;direction:rtl;}
+.li-phone{font-size:12px;color:rgba(255,255,255,0.4);direction:ltr;white-space:nowrap;min-width:96px;text-align:left;}
+.li-phone input{background:rgba(255,255,255,0.08);border:1px solid rgba(20,184,166,0.6);border-radius:7px;padding:4px 8px;color:#fff;font-family:'Heebo',sans-serif;font-size:12px;outline:none;width:96px;direction:ltr;text-align:left;}
+
+.li-edit,.li-save,.li-cancel,.li-del{
+  background:none;border:none;cursor:pointer;font-size:15px;
+  padding:3px 5px;border-radius:6px;transition:background .15s;font-family:'Heebo',sans-serif;
+}
+.li-edit{color:rgba(255,255,255,0.35);}
+.li-edit:hover{color:#fff;background:rgba(255,255,255,0.1);}
+.li-save{color:#2dd4bf;}
+.li-save:hover{background:rgba(20,184,166,0.15);}
+.li-cancel{color:rgba(255,255,255,0.3);}
+.li-cancel:hover{background:rgba(255,255,255,0.08);}
+.li-del{color:rgba(255,255,255,0.25);}
+.li-del:hover{color:#f87171;background:rgba(239,68,68,0.1);}
+
+.empty-list{text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:13px;}
+
+/* dots */
+.dots{display:flex;gap:6px;justify-content:center;}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.22);transition:background .3s,transform .3s;}
+.dot.active{background:#14b8a6;transform:scale(1.3);}
+
+@media(max-width:720px){
+  .two-col{grid-template-columns:1fr;gap:24px;}
+  .col-sep{width:100%;height:1px;align-self:auto;}
+  .survey-card{padding:22px 18px 20px;}
+  .kpi-row{grid-template-columns:repeat(3,1fr);}
+}
+@media(max-width:400px){
+  .transport-grid{grid-template-columns:1fr;}
+  .name-row{grid-template-columns:1fr;}
+  .kpi-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-wrap">
+  <div class="bg-slide active" style="background-image:url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1400&q=85')"></div>
+  <div class="bg-slide" style="background-image:url('https://images.unsplash.com/photo-1593079831268-3381b0db4a77?w=1400&q=85')"></div>
+  <div class="bg-slide" style="background-image:url('https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?w=1400&q=85')"></div>
+  <div class="bg-slide" style="background-image:url('https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=1400&q=85')"></div>
+  <div class="bg-overlay"></div>
+</div>
+
+<div class="page">
+  <div class="logo-bar">
+    <div class="brand">HOLMES PLACE &nbsp;|&nbsp; <span>יום הבריאות</span></div>
+    <div id="syncStatus" style="margin-top:5px;min-height:18px;"></div>
+  </div>
+
+  <div class="survey-card glass">
+    <div class="two-col">
+
+      <!-- ══ FORM SIDE ══ -->
+      <div class="form-side">
+        <div id="formSection">
+          <div class="card-header">
+            <div class="event-pill">📅 אירוע מיוחד</div>
+            <h1>סקר הגעה</h1>
+            <p>נשמח לדעת כיצד תגיעו לאירוע</p>
+          </div>
+
+          <div class="sec-label">פרטי משתתף</div>
+          <div class="name-row">
+            <div class="field">
+              <label class="fl">שם פרטי <span class="req">*</span></label>
+              <input type="text" id="firstName" placeholder="ישראל"/>
+              <span class="err" id="errFirst">יש למלא שם פרטי</span>
+            </div>
+            <div class="field">
+              <label class="fl">שם משפחה <span class="req">*</span></label>
+              <input type="text" id="lastName" placeholder="ישראלי"/>
+              <span class="err" id="errLast">יש למלא שם משפחה</span>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:18px;">
+            <label class="fl">מספר טלפון <span class="req">*</span></label>
+            <input type="text" id="phone" placeholder="05X-XXXXXXX" dir="ltr" style="text-align:right;"/>
+            <span class="err" id="errPhone">יש למלא מספר טלפון תקין</span>
+          </div>
+
+          <div class="divider"></div>
+          <div class="sec-label">אופן הגעה</div>
+
+          <div class="transport-grid">
+            <div class="t-opt">
+              <input type="radio" name="transport" id="t1" value="police">
+              <label for="t1"><span class="t-icon">🚔</span>מגיע ברכב משטרה</label>
+            </div>
+            <div class="t-opt">
+              <input type="radio" name="transport" id="t2" value="self">
+              <label for="t2"><span class="t-icon">🚗</span>מגיע/ה עצמאית</label>
+            </div>
+            <div class="t-opt">
+              <input type="radio" name="transport" id="t3" value="shuttle">
+              <label for="t3"><span class="t-icon">🚌</span>צריך/ה הסעה</label>
+            </div>
+          </div>
+          <span class="terr" id="errTransport">יש לבחור אופן הגעה</span>
+
+          <button class="submit-btn" onclick="submitForm()">שלח סקר ✓</button>
+        </div>
+
+        <div class="success-screen" id="successSection">
+          <div class="success-circle">✅</div>
+          <h2>תודה על ההרשמה!</h2>
+          <p>פרטיך נקלטו — נתראה ביום הבריאות!</p>
+          <div class="summary-chip" id="summaryChip"></div>
+          <br>
+          <button class="add-btn" onclick="resetForm()">+ הוסף רישום נוסף</button>
+        </div>
+      </div>
+
+      <!-- ══ SEPARATOR ══ -->
+      <div class="col-sep"></div>
+
+      <!-- ══ DASH SIDE ══ -->
+      <div class="dash-side">
+
+        <!-- KPIs -->
+        <div class="kpi-row">
+          <div class="kpi-card" id="kpiAll" onclick="toggleDrawer('all')">
+            <div class="kpi-icon">👥</div>
+            <div class="kpi-label">סה"כ</div>
+            <div class="kpi-num teal" id="numTotal">0</div>
+            <div class="kpi-sub">משתתפים</div>
+          </div>
+          <div class="kpi-card" id="kpiShuttleCard" onclick="toggleDrawer('shuttle')">
+            <div class="kpi-icon">🚌</div>
+            <div class="kpi-label">הסעה</div>
+            <div class="kpi-num amber" id="numShuttle">0</div>
+            <div class="kpi-sub">מבקשים</div>
+          </div>
+          <div class="kpi-card" id="kpiPoliceCard" onclick="toggleDrawer('police')">
+            <div class="kpi-icon">🚔</div>
+            <div class="kpi-label">ניידת</div>
+            <div class="kpi-num blue" id="numPolice">0</div>
+            <div class="kpi-sub">נוסעים</div>
+          </div>
+        </div>
+
+        <!-- BARS -->
+        <div class="bars-box">
+          <div class="bar-row" id="barRowPolice" onclick="toggleDrawer('police')">
+            <div class="bar-meta">
+              <span class="bar-name">🚔 רכב משטרה</span>
+              <span class="bar-cnt police" id="cntPolice">0</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill police" id="barPolice" style="width:0%"></div></div>
+            <div class="bar-pct" id="pctPolice">0%</div>
+          </div>
+          <div class="bar-row" id="barRowSelf" onclick="toggleDrawer('self')">
+            <div class="bar-meta">
+              <span class="bar-name">🚗 עצמאי/ת</span>
+              <span class="bar-cnt self" id="cntSelf">0</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill self" id="barSelf" style="width:0%"></div></div>
+            <div class="bar-pct" id="pctSelf">0%</div>
+          </div>
+          <div class="bar-row" id="barRowShuttle" onclick="toggleDrawer('shuttle')">
+            <div class="bar-meta">
+              <span class="bar-name">🚌 הסעה</span>
+              <span class="bar-cnt shuttle" id="cntShuttle">0</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill shuttle" id="barShuttle" style="width:0%"></div></div>
+            <div class="bar-pct" id="pctShuttle">0%</div>
+          </div>
+        </div>
+
+        <!-- DRAWER -->
+        <div class="drawer" id="drawer">
+          <div class="drawer-inner">
+            <div class="drawer-header">
+              <span class="drawer-title" id="drawerTitle"></span>
+              <button class="drawer-close" onclick="closeDrawer()">✕</button>
+            </div>
+            <div class="list-scroll" id="listScroll"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="dots">
+    <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzc-7tc3qjDPhWqlyR67SAbi5cL7DYsdsLVZEhDDYYkopXDHsb88Og4EG2fJAK9E4N03w/exec';
+
+// ── DATA ──
+let responses = JSON.parse(localStorage.getItem('healthDaySurvey') || '[]');
+let activeFilter = null;
+let syncing = false;
+
+const LABELS = { police:'🚔 רכב משטרה', self:'🚗 עצמאי/ת', shuttle:'🚌 הסעה', all:'👥 כל המשתתפים' };
+
+// שמירה מקומית תמיד + סנכרון לענן
+const saveLocal = () => localStorage.setItem('healthDaySurvey', JSON.stringify(responses));
+
+// ── SYNC STATUS UI ──
+function setSyncStatus(state) {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  const states = {
+    syncing: { icon:'⏳', text:'מסנכרן...', color:'rgba(251,191,36,0.8)' },
+    ok:      { icon:'☁️', text:'מסונכרן',   color:'rgba(45,212,191,0.8)' },
+    err:     { icon:'⚠️', text:'שגיאת סנכרון', color:'rgba(248,113,113,0.8)' },
+    offline: { icon:'💾', text:'שמור מקומית', color:'rgba(255,255,255,0.35)' }
+  };
+  const s = states[state] || states.offline;
+  el.innerHTML = `<span style="color:${s.color};font-size:11px;font-weight:600;">${s.icon} ${s.text}</span>`;
+}
+
+// ── API CALLS via JSONP ──
+function gasCall(params) {
+  return new Promise((resolve) => {
+    if (!GAS_URL || GAS_URL === 'YOUR_APPS_SCRIPT_URL') {
+      resolve({ ok: false, offline: true }); return;
+    }
+    const cbName = '_cb_' + Date.now();
+    const qs = Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+    const url = GAS_URL + '?' + qs + '&cb=' + cbName;
+    const script = document.createElement('script');
+    let done = false;
+    window[cbName] = (data) => {
+      done = true;
+      delete window[cbName];
+      script.remove();
+      resolve(data);
+    };
+    script.onerror = () => { if(!done){ delete window[cbName]; script.remove(); resolve({ok:false,error:'network'}); } };
+    script.src = url;
+    setTimeout(()=>{ if(!done){ delete window[cbName]; script.remove(); resolve({ok:false,error:'timeout'}); } }, 8000);
+    document.head.appendChild(script);
+  });
+}
+
+// ── LOAD FROM CLOUD on startup ──
+async function loadFromCloud() {
+  setSyncStatus('syncing');
+  const res = await gasCall({ action: 'getAll' });
+  if (res.ok && res.data) {
+    responses = res.data;
+    saveLocal();
+    setSyncStatus('ok');
+    renderDash();
+    if (activeFilter) renderList(activeFilter);
+  } else if (res.offline) {
+    setSyncStatus('offline');
+  } else {
+    setSyncStatus('err');
+  }
+}
+
+const save = async () => {
+  saveLocal();
+};
+
+// ── SLIDESHOW ──
+const slides = document.querySelectorAll('.bg-slide');
+const dots   = document.querySelectorAll('.dot');
+let cur = 0;
+setInterval(() => {
+  slides[cur].classList.remove('active'); dots[cur].classList.remove('active');
+  cur = (cur+1) % slides.length;
+  slides[cur].classList.add('active'); dots[cur].classList.add('active');
+}, 4500);
+
+// ── FORM ──
+function submitForm() {
+  const fn = document.getElementById('firstName');
+  const ln = document.getElementById('lastName');
+  const ph = document.getElementById('phone');
+  const tr = document.querySelector('input[name="transport"]:checked');
+  fn.classList.remove('invalid'); ln.classList.remove('invalid'); ph.classList.remove('invalid');
+  ['errFirst','errLast','errPhone','errTransport'].forEach(id => document.getElementById(id).style.display='none');
+  let ok = true;
+  if (!fn.value.trim()) { fn.classList.add('invalid'); document.getElementById('errFirst').style.display='block'; ok=false; }
+  if (!ln.value.trim()) { ln.classList.add('invalid'); document.getElementById('errLast').style.display='block'; ok=false; }
+  const phoneClean = ph.value.replace(/[-\s]/g,'');
+  if (!phoneClean || !/^0\d{8,9}$/.test(phoneClean)) { ph.classList.add('invalid'); document.getElementById('errPhone').style.display='block'; ok=false; }
+  if (!tr) { document.getElementById('errTransport').style.display='block'; ok=false; }
+  if (!ok) return;
+  const entry = { id: Date.now(), name: fn.value.trim()+' '+ln.value.trim(), phone: ph.value.trim(), transport: tr.value };
+  responses.push(entry); saveLocal();
+  document.getElementById('summaryChip').textContent = entry.name + ' · ' + LABELS[entry.transport];
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('successSection').style.display = 'block';
+  renderDash();
+  if (activeFilter) renderList(activeFilter);
+  setSyncStatus('syncing');
+  gasCall({ action:'add', id:entry.id, name:entry.name, phone:entry.phone, transport:entry.transport })
+    .then(r => setSyncStatus(r.ok ? 'ok' : (r.offline ? 'offline' : 'err')));
+}
+
+function resetForm() {
+  document.getElementById('firstName').value = '';
+  document.getElementById('lastName').value  = '';
+  document.getElementById('phone').value     = '';
+  document.querySelectorAll('input[name="transport"]').forEach(r => r.checked=false);
+  document.getElementById('formSection').style.display   = 'block';
+  document.getElementById('successSection').style.display = 'none';
+}
+
+// ── DASHBOARD ──
+function renderDash() {
+  const total   = responses.length;
+  const police  = responses.filter(r=>r.transport==='police').length;
+  const self    = responses.filter(r=>r.transport==='self').length;
+  const shuttle = responses.filter(r=>r.transport==='shuttle').length;
+  const pct = v => total ? Math.round(v/total*100) : 0;
+
+  document.getElementById('numTotal').textContent   = total;
+  document.getElementById('numShuttle').textContent = shuttle;
+  document.getElementById('numPolice').textContent  = police;
+  document.getElementById('cntPolice').textContent  = police;
+  document.getElementById('cntSelf').textContent    = self;
+  document.getElementById('cntShuttle').textContent = shuttle;
+  document.getElementById('barPolice').style.width  = pct(police)+'%';
+  document.getElementById('barSelf').style.width    = pct(self)+'%';
+  document.getElementById('barShuttle').style.width = pct(shuttle)+'%';
+  document.getElementById('pctPolice').textContent  = pct(police)+'%';
+  document.getElementById('pctSelf').textContent    = pct(self)+'%';
+  document.getElementById('pctShuttle').textContent = pct(shuttle)+'%';
+}
+
+// ── DRAWER ──
+function toggleDrawer(filter) {
+  const drawer = document.getElementById('drawer');
+  if (activeFilter === filter && drawer.classList.contains('open')) {
+    closeDrawer(); return;
+  }
+  activeFilter = filter;
+  // highlight selected
+  ['kpiAll','kpiShuttleCard','kpiPoliceCard'].forEach(id => document.getElementById(id).classList.remove('selected'));
+  ['barRowPolice','barRowSelf','barRowShuttle'].forEach(id => document.getElementById(id).classList.remove('selected'));
+  if (filter==='all')     { document.getElementById('kpiAll').classList.add('selected'); }
+  if (filter==='shuttle') { document.getElementById('kpiShuttleCard').classList.add('selected'); document.getElementById('barRowShuttle').classList.add('selected'); }
+  if (filter==='police')  { document.getElementById('kpiPoliceCard').classList.add('selected');  document.getElementById('barRowPolice').classList.add('selected'); }
+  if (filter==='self')    { document.getElementById('barRowSelf').classList.add('selected'); }
+
+  document.getElementById('drawerTitle').textContent = LABELS[filter] || LABELS[filter];
+  renderList(filter);
+  drawer.classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  ['kpiAll','kpiShuttleCard','kpiPoliceCard'].forEach(id => document.getElementById(id).classList.remove('selected'));
+  ['barRowPolice','barRowSelf','barRowShuttle'].forEach(id => document.getElementById(id).classList.remove('selected'));
+  activeFilter = null;
+}
+
+function renderList(filter) {
+  const list = filter==='all' ? responses : responses.filter(r=>r.transport===filter);
+  const el = document.getElementById('listScroll');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-list">אין משתתפים בקטגוריה זו</div>'; return;
+  }
+  el.innerHTML = [...list].reverse().map(r => `
+    <div class="list-item" id="li-${r.id}">
+      <span class="li-name" id="liname-${r.id}">${r.name}</span>
+      <span class="li-phone" id="liphone-${r.id}">${r.phone||''}</span>
+      <button class="li-edit" onclick="startEdit(${r.id})" title="ערוך">✏️</button>
+      <button class="li-del"  onclick="deleteEntry(${r.id})" title="מחק">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function startEdit(id) {
+  const r = responses.find(x=>x.id===id);
+  if (!r) return;
+  const nameEl  = document.getElementById('liname-'+id);
+  const phoneEl = document.getElementById('liphone-'+id);
+  const item    = document.getElementById('li-'+id);
+  nameEl.innerHTML  = `<input type="text" value="${r.name}"  id="editName-${id}"  style="width:100%" />`;
+  phoneEl.innerHTML = `<input type="text" value="${r.phone||''}" id="editPhone-${id}" dir="ltr" style="width:90px;text-align:right" />`;
+  item.querySelector('.li-edit').style.display='none';
+  item.querySelector('.li-del').style.display='none';
+  const saveBtn   = document.createElement('button');
+  const cancelBtn = document.createElement('button');
+  saveBtn.className='li-save'; saveBtn.textContent='✓'; saveBtn.title='שמור';
+  cancelBtn.className='li-cancel'; cancelBtn.textContent='✕'; cancelBtn.title='בטל';
+  saveBtn.onclick   = () => saveEdit(id);
+  cancelBtn.onclick = () => renderList(activeFilter);
+  item.appendChild(saveBtn);
+  item.appendChild(cancelBtn);
+  document.getElementById('editName-'+id).focus();
+}
+
+function saveEdit(id) {
+  const nameVal  = (document.getElementById('editName-'+id)||{}).value||'';
+  const phoneVal = (document.getElementById('editPhone-'+id)||{}).value||'';
+  if (!nameVal.trim()) return;
+  const r = responses.find(x=>x.id===id);
+  if (r) {
+    r.name = nameVal.trim(); r.phone = phoneVal.trim(); saveLocal();
+    renderDash(); renderList(activeFilter);
+    setSyncStatus('syncing');
+    gasCall({ action:'update', id:r.id, name:r.name, phone:r.phone })
+      .then(res => setSyncStatus(res.ok ? 'ok' : (res.offline ? 'offline' : 'err')));
+  }
+}
+
+function deleteEntry(id) {
+  const sid = String(id);
+  responses = responses.filter(r => String(r.id) !== sid);
+  saveLocal(); renderDash(); renderList(activeFilter);
+  setSyncStatus('syncing');
+  gasCall({ action:'delete', id: sid })
+    .then(r => setSyncStatus(r.ok ? 'ok' : (r.offline ? 'offline' : 'err')));
+}
+
+renderDash();
+loadFromCloud();
+</script>
+</body>
+</html>
